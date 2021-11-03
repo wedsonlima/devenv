@@ -51,8 +51,7 @@ sudo apt install build-essential \
                   gnome-tweak-tool \
                   fonts-hack-ttf \
                   default-jdk \
-                  postgresql-10 postgresql-contrib postgresql-server-dev-10 \
-                  memcached
+                  postgresql-contrib
 
 ########################################
 #               Flat-Remix
