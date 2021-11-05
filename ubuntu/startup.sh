@@ -16,42 +16,42 @@ mkdir -p $TMP_FOLDER && cd $TMP_FOLDER
 echo -e "\n Installing system dependencies..."
 
 sudo apt install build-essential \
-                  zlib1g \
-                  zlib1g-dev \
-                  libpq-dev \
-                  libssl-dev \
-                  libyaml-dev \
-                  libxml2-dev \
-                  libxslt1-dev \
-                  libc6-dev \
-                  libncurses5-dev \
-                  libreadline-dev \
-                  libtool \
-                  ncurses-term \
-                  make \
-                  automake \
-                  autoconf  \
-                  libffi-dev \
-                  unixodbc-dev \
-                  silversearcher-ag \
-                  fontconfig \
-                  software-properties-common \
-                  vim-gtk3 \
-                  unzip \
-                  imagemagick \
-                  sed \
-                  mawk \
-                  curl \
-                  openssl \
-                  apt-transport-https \
-                  ca-certificates \
-                  ssh \
-                  git \
-                  tilix \
-                  gnome-tweak-tool \
-                  fonts-hack-ttf \
-                  default-jdk \
-                  postgresql-contrib
+                 zlib1g \
+                 zlib1g-dev \
+                 libpq-dev \
+                 libssl-dev \
+                 libyaml-dev \
+                 libxml2-dev \
+                 libxslt1-dev \
+                 libc6-dev \
+                 libncurses5-dev \
+                 libreadline-dev \
+                 libtool \
+                 ncurses-term \
+                 make \
+                 automake \
+                 autoconf  \
+                 libffi-dev \
+                 unixodbc-dev \
+                 silversearcher-ag \
+                 fontconfig \
+                 software-properties-common \
+                 vim-gtk3 \
+                 unzip \
+                 imagemagick \
+                 sed \
+                 mawk \
+                 curl \
+                 openssl \
+                 apt-transport-https \
+                 ca-certificates \
+                 ssh \
+                 git \
+                 tilix \
+                 gnome-tweak-tool \
+                 fonts-hack-ttf \
+                 default-jdk \
+                 postgresql-contrib
 
 ########################################
 #               Flat-Remix
@@ -99,7 +99,12 @@ case ${option} in
   sudo apt update
   sudo apt install docker-ce
 
-  DOCKER_RESPONSE=$(sudo docker run hello-world)
+  # Executing the Docker Command Without Sudo
+  # https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-on-ubuntu-20-04
+  sudo usermod -aG docker ${USER}
+  su -u ${USER}
+
+  DOCKER_RESPONSE=$(docker run hello-world)
 
   if [[ -z $DOCKER_RESPONSE ]]; then
     echo 'Docker installation - ERROR'
@@ -137,14 +142,16 @@ case ${option} in
 
   # https://github.com/asdf-vm/asdf-ruby
   asdf plugin-add ruby https://github.com/asdf-vm/asdf-ruby.git
-
-  # asdf install ruby 2.4.4
-  # asdf install ruby 2.5.3
-  asdf install ruby 2.6.3
+  asdf install ruby 2.7.4
 
   if [[ -e $(which ruby) ]]; then
-    asdf global ruby 2.6.3
+    asdf global ruby 2.7.4
   fi
+
+  echo -e "\n -- asdf / python"
+
+  asdf plugin-add python
+  asdf install python 3.6.12
 
   echo -e "\n -- asdf / node"
 
@@ -152,8 +159,8 @@ case ${option} in
   asdf plugin-add nodejs https://github.com/asdf-vm/asdf-nodejs.git
   bash ~/.asdf/plugins/nodejs/bin/import-release-team-keyring
 
-  asdf install nodejs 12.6.0
-  asdf global nodejs 12.6.0
+  asdf install nodejs 12.16.3
+  asdf global nodejs 12.16.3
 
   echo -e "\n done."
 
@@ -291,15 +298,17 @@ read option
 case ${option} in
 'y'|'Y'|'s'|'S')
 
-  echo -e "\n -- sublime-text"
-  sudo snap install sublime-text --classic
-
-  echo -e "\n -- heroku"
-  sudo snap install heroku --classic
-  heroku login -i
+  # echo -e "\n -- sublime-text"
+  # sudo snap install sublime-text --classic
 
   echo -e "\n -- opera"
   sudo snap install opera
+
+  echo -e "\n -- firefox"
+  sudo snap install firefox
+
+  echo -e "\n -- chromium"
+  sudo snap install chromium
 
   echo -e "\n -- postman"
   sudo snap install postman
@@ -307,17 +316,28 @@ case ${option} in
   echo -e "\n -- slack"
   sudo snap install slack --classic
 
-  echo -e "\n -- heroku"
-  sudo snap install chromium
-
   echo -e "\n -- spotify"
   sudo snap install spotify
 
+  echo -e "\n -- heroku"
+  sudo snap install heroku --classic
+  heroku login -i
+
+  echo -e "\n -- solaar"
+  pip install --user solaar
+
   echo -e "\n -- enpass"
 
+  # [not official]
+  # sudo snap install enpass
+
   # https://www.enpass.io/support/kb/general/how-to-install-enpass-on-linux/
-  echo "deb https://apt.enpass.io/ stable main" | sudo tee /etc/apt/sources.list.d/enpass.list
-  wget -O - https://apt.enpass.io/keys/enpass-linux.key | sudo apt-key add -
+  # echo "deb https://apt.enpass.io/ stable main" | sudo tee /etc/apt/sources.list.d/enpass.list
+  #wget -O - https://apt.enpass.io/keys/enpass-linux.key | sudo apt-key add -
+
+  echo "deb https://apt.enpass.io/ stable main" > /etc/apt/sources.list.d/enpass.list
+  wget -O - https://apt.enpass.io/keys/enpass-linux.key | tee /etc/apt/trusted.gpg.d/enpass.asc
+
   sudo apt update
   sudo apt install enpass
 
@@ -325,28 +345,6 @@ case ${option} in
 
   wget -O - "https://www.dropbox.com/download?plat=lnx.x86_64" | tar xzf -
   bash .dropbox-dist/dropboxd
-
-  echo -e "\n done."
-
-  ;;
-*)
-  echo -e "\n That's fine."
-  ;;
-esac
-
-########################################
-#               STEAM
-########################################
-
-echo -e "\n Install STEAM? [y/N]"
-read option
-
-# https://store.steampowered.com/about/
-case ${option} in
-'y'|'Y'|'s'|'S')
-
-  wget -O https://steamcdn-a.akamaihd.net/client/installer/steam.deb
-  sudo dpkg -i steam_latest.deb
 
   echo -e "\n done."
 
