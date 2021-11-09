@@ -319,6 +319,9 @@ case ${option} in
   echo -e "\n -- spotify"
   sudo snap install spotify
 
+  echo -e "\n -- telegram"
+  sudo snap install telegram-desktop
+
   echo -e "\n -- heroku"
   sudo snap install heroku --classic
   heroku login -i
